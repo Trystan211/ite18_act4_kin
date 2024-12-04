@@ -84,7 +84,28 @@ loader.load(
         box.getSize(size);
         console.log('Submarine dimensions:', size);
 
-        hotdog.scale.set(1, 1, 1);
+        // Debugging parent and world position
+        console.log('Submarine Parent:', hotdog.parent);
+        if (hotdog.parent) {
+            console.log('Parent Position:', hotdog.parent.position);
+            hotdog.parent.position.set(0, 0, 0);
+            hotdog.parent.rotation.set(0, 0, 0);
+            hotdog.parent.scale.set(1, 1, 1);
+        }
+
+        // Check world position
+        const worldPos = new THREE.Vector3();
+        hotdog.updateMatrixWorld();
+        hotdog.getWorldPosition(worldPos);
+        console.log('Submarine World Position:', worldPos);
+
+        // Visual helpers
+        const submarineHelper = new THREE.AxesHelper(5);
+        hotdog.add(submarineHelper);
+        if (hotdog.parent) {
+            const parentHelper = new THREE.AxesHelper(10);
+            hotdog.parent.add(parentHelper);
+        }
     },
     undefined,
     (error) => {
