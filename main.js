@@ -76,7 +76,7 @@ loader.load(
     'https://trystan211.github.io/ite18_act4_kin/kilo-class_submarine.glb', 
     (gltf) => {
         hotdog = gltf.scene;
-        hotdog.position.set(1, 1, 1);
+        hotdog.position.set(0, 0, -10);
         scene.add(hotdog);
 
         const box = new THREE.Box3().setFromObject(hotdog);
