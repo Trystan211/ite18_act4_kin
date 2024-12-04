@@ -73,7 +73,7 @@ const loader = new GLTFLoader();
 let hotdog = null;
 
 loader.load(
-    'https://trystan211.github.io/ite18_joshua_act4/low_poly_hot_dog.glb', 
+    'https://trystan211.github.io/ite18_act4_kin/kilo-class_submarine.glb', 
     (gltf) => {
         hotdog = gltf.scene;
         hotdog.position.set(1, 1, 1);
@@ -82,9 +82,9 @@ loader.load(
         const box = new THREE.Box3().setFromObject(hotdog);
         const size = new THREE.Vector3();
         box.getSize(size);
-        console.log('Hotdog dimensions:', size);
+        console.log('Submarine dimensions:', size);
 
-        hotdog.scale.set(25, 25, 25);
+        hotdog.scale.set(1, 1, 1);
     },
     undefined,
     (error) => {
