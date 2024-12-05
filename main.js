@@ -76,7 +76,7 @@ loader.load(
     'https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb', // Replace with actual hotdog model URL
     (gltf) => {
         hotdog = gltf.scene;
-        hotdog.position.set(0, 0, 0);
+        hotdog.position.set(0, -4, 0);
         scene.add(hotdog);
 
         const box = new THREE.Box3().setFromObject(hotdog);
