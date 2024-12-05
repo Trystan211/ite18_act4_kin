@@ -4,7 +4,7 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/
 
 // Scene Setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000011); // Dark blue para sa night sky
+scene.background = new THREE.Color(0x000011); // Dark blue for night sky
 
 // Renderer Setup
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -22,7 +22,7 @@ scene.add(camera);
 const controls = new OrbitControls(camera, renderer.domElement);
 
 // Dynamic Light
-const dynamicLight = new THREE.PointLight(0xffffff, 4, 50);
+const dynamicLight = new THREE.PointLight(0xffffff, 8, 50);
 dynamicLight.position.set(0, 10, 0);
 scene.add(dynamicLight);
 
@@ -73,39 +73,18 @@ const loader = new GLTFLoader();
 let hotdog = null;
 
 loader.load(
-    'https://trystan211.github.io/ite18_act4_kin/typhoon-class_submarine.glb', 
+    'https://trystan211.github.io/ite18_joshua_act4/low_poly_hot_dog.glb', // Replace with actual hotdog model URL
     (gltf) => {
         hotdog = gltf.scene;
-        hotdog.position.set(0, 0, -10);
+        hotdog.position.set(1, 1, 1);
         scene.add(hotdog);
 
         const box = new THREE.Box3().setFromObject(hotdog);
         const size = new THREE.Vector3();
         box.getSize(size);
-        console.log('Submarine dimensions:', size);
+        console.log('Hotdog dimensions:', size);
 
-        // Debugging parent and world position
-        console.log('Submarine Parent:', hotdog.parent);
-        if (hotdog.parent) {
-            console.log('Parent Position:', hotdog.parent.position);
-            hotdog.parent.position.set(0, 0, 0);
-            hotdog.parent.rotation.set(0, 0, 0);
-            hotdog.parent.scale.set(1, 1, 1);
-        }
-
-        // Check world position
-        const worldPos = new THREE.Vector3();
-        hotdog.updateMatrixWorld();
-        hotdog.getWorldPosition(worldPos);
-        console.log('Submarine World Position:', worldPos);
-
-        // Visual helpers
-        const submarineHelper = new THREE.AxesHelper(5);
-        hotdog.add(submarineHelper);
-        if (hotdog.parent) {
-            const parentHelper = new THREE.AxesHelper(10);
-            hotdog.parent.add(parentHelper);
-        }
+        hotdog.scale.set(25, 25, 25);
     },
     undefined,
     (error) => {
@@ -177,4 +156,3 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
