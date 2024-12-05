@@ -66,7 +66,7 @@ let submarine = null;
 let submarineYOffset = 0; // To adjust the origin misalignment
 
 loader.load(
-    "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
+    "https://trystan211.github.io/ite18_act4_kin/low_poly_type_xxi_submarine.glb",
     (gltf) => {
         submarine = gltf.scene;
 
