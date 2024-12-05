@@ -1,10 +1,6 @@
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js";
-import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js";
-
 // Scene Setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000011); // Dark night sky
+scene.background = new THREE.Color(0x001133); // Darker blue for deeper ocean atmosphere
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -14,7 +10,7 @@ document.body.appendChild(renderer.domElement);
 
 // Camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.set(0, 5, 15);
+camera.position.set(0, 5, 20); // Adjust to ensure a better view of the submarine
 scene.add(camera);
 
 // Orbit Controls
@@ -88,6 +84,11 @@ loader.load(
         const light = new THREE.PointLight(0xffffff, 1, 50);
         light.position.set(0, 20, 0); // Above the submarine
         scene.add(light);
+
+        // Add additional moonlight-like directional light
+        const moonLight = new THREE.DirectionalLight(0xaaaaaa, 0.5);
+        moonLight.position.set(10, 10, -10).normalize();
+        scene.add(moonLight);
     },
     undefined,
     (error) => {
