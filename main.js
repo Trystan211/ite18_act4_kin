@@ -35,26 +35,30 @@ const oceanMaterial = new THREE.ShaderMaterial({
         time: { value: 0 },
         waveHeight: { value: 1.5 },
         waveFrequency: { value: 0.5 },
-        deepColor: { value: new THREE.Color(0x8B8000) }, // Darker yellow
-        shallowColor: { value: new THREE.Color(0xFFD700) }, // Mustard yellow
+        deepColor: { value: new THREE.Color(0x1e3f66) }, // Deep ocean blue
+        shallowColor: { value: new THREE.Color(0x6ccff6) }, // Lighter ocean blue
     },
     vertexShader: `
         uniform float time;
         uniform float waveHeight;
         uniform float waveFrequency;
+        varying float vWaveHeight;
         varying vec2 vUv;
 
         void main() {
             vUv = uv;
             vec3 pos = position;
-            pos.y += sin(pos.x * waveFrequency + time) * waveHeight * 0.8;
-            pos.y += cos(pos.z * waveFrequency + time * 1.5) * waveHeight * 0.6;
+            float wave = sin(pos.x * waveFrequency + time) * waveHeight;
+            wave += cos(pos.z * waveFrequency + time * 1.5) * waveHeight * 0.5;
+            pos.y += wave;
+            vWaveHeight = pos.y; // Pass wave height to fragment shader
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
     `,
     fragmentShader: `
         uniform vec3 deepColor;
         uniform vec3 shallowColor;
+        varying float vWaveHeight;
         varying vec2 vUv;
 
         void main() {
@@ -75,15 +79,9 @@ loader.load(
     "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
     (gltf) => {
         submarine = gltf.scene;
-        submarine.position.set(0, -1.5, 0); // Slightly below the ocean surface
-        scene.add(submarine);
-
-        const box = new THREE.Box3().setFromObject(submarine);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        console.log("Submarine dimensions:", size);
-
+        submarine.position.set(0, -1.5, 0); // Set initial position near water surface
         submarine.scale.set(3, 3, 3);
+        scene.add(submarine);
     },
     undefined,
     (error) => {
@@ -108,7 +106,7 @@ for (let i = 0; i < rainCount; i++) {
 rainGeometry.setAttribute("position", new THREE.Float32BufferAttribute(rainPositions, 3));
 
 const rainMaterial = new THREE.PointsMaterial({
-    color: 0xff0000, // Red color
+    color: 0xffffff, // White rain
     size: 0.2,
     transparent: true,
     opacity: 0.8,
@@ -142,13 +140,13 @@ function animate() {
         10 * Math.cos(elapsedTime * 0.5)
     );
 
-    // Make submarine dip slightly into ocean waves
+    // Submarine wave interaction
     if (submarine) {
         const waveHeight =
             Math.sin(submarine.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) *
-            oceanMaterial.uniforms.waveHeight.value *
-            0.2; // Reduced dip factor
-        submarine.position.y = -1.5 + waveHeight; // Adjust base y-position slightly
+            oceanMaterial.uniforms.waveHeight.value;
+
+        submarine.position.y = waveHeight - 1.5; // Sync submarine Y position to wave height
         submarine.position.x = Math.sin(elapsedTime * 0.5) * 5;
         submarine.position.z = Math.cos(elapsedTime * 0.5) * 5;
     }
