@@ -76,7 +76,7 @@ loader.load(
     'https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb', // Replace with actual hotdog model URL
     (gltf) => {
         hotdog = gltf.scene;
-        hotdog.position.set(1, -2, 1);
+        hotdog.position.set(0, 0, 0);
         scene.add(hotdog);
 
         const box = new THREE.Box3().setFromObject(hotdog);
@@ -141,8 +141,10 @@ function animate() {
     );
 
     if (hotdog) {
-        hotdog.position.x = Math.sin(elapsedTime * 0.5) * 5;
-        hotdog.position.z = Math.cos(elapsedTime * 0.5) * 5;
+    const waveHeight = Math.sin(hotdog.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) * oceanMaterial.uniforms.waveHeight.value;
+    hotdog.position.y = waveHeight; // Set the y position to match the wave height
+    hotdog.position.x = Math.sin(elapsedTime * 0.5) * 5;
+    hotdog.position.z = Math.cos(elapsedTime * 0.5) * 5;
     }
 
     renderer.render(scene, camera);
