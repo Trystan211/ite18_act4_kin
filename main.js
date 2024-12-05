@@ -88,11 +88,15 @@ function animate() {
 
     // Submarine Sync with Waves
     if (submarine) {
-        const waveHeight =
-            Math.sin(submarine.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) *
-            oceanMaterial.uniforms.waveHeight.value;
+        const waveFrequency = oceanMaterial.uniforms.waveFrequency.value;
+        const waveHeight = oceanMaterial.uniforms.waveHeight.value;
 
-        submarine.position.y = waveHeight - 0.5; // Align with wave, dip slightly
+        // Calculate wave height at submarine's position
+        const wave =
+            Math.sin(submarine.position.x * waveFrequency + elapsedTime) * waveHeight +
+            Math.cos(submarine.position.z * waveFrequency + elapsedTime * 1.5) * waveHeight * 0.5;
+
+        submarine.position.y = wave; // Align the submarine's y-position with the wave
     }
 
     renderer.render(scene, camera);
@@ -107,4 +111,3 @@ window.addEventListener("resize", () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
