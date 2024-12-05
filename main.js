@@ -10,7 +10,6 @@ scene.background = new THREE.Color(0x000011); // Dark blue for night sky
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setClearColor(0x87CEEB);
 document.body.appendChild(renderer.domElement);
 
 // Camera Setup
@@ -68,27 +67,27 @@ const oceanMaterial = new THREE.ShaderMaterial({
 const ocean = new THREE.Mesh(geometry, oceanMaterial);
 scene.add(ocean);
 
-// Load Hotdog Model
+// Load Submarine Model
 const loader = new GLTFLoader();
-let hotdog = null;
+let submarine = null;
 
 loader.load(
-    'https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb', // Replace with actual hotdog model URL
+    "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
     (gltf) => {
-        hotdog = gltf.scene;
-        hotdog.position.set(0, -4, 0);
-        scene.add(hotdog);
+        submarine = gltf.scene;
+        submarine.position.set(0, -1.5, 0); // Slightly below the ocean surface
+        scene.add(submarine);
 
-        const box = new THREE.Box3().setFromObject(hotdog);
+        const box = new THREE.Box3().setFromObject(submarine);
         const size = new THREE.Vector3();
         box.getSize(size);
-        console.log('Hotdog dimensions:', size);
+        console.log("Submarine dimensions:", size);
 
-        hotdog.scale.set(3, 3, 3);
+        submarine.scale.set(3, 3, 3);
     },
     undefined,
     (error) => {
-        console.error("Error loading the hotdog model:", error);
+        console.error("Error loading the submarine model:", error);
     }
 );
 
@@ -123,8 +122,10 @@ const clock = new THREE.Clock();
 function animate() {
     const elapsedTime = clock.getElapsedTime();
 
+    // Update ocean waves
     oceanMaterial.uniforms.time.value = elapsedTime;
 
+    // Update rain
     const positions = rain.geometry.attributes.position.array;
     for (let i = 0; i < rainCount; i++) {
         positions[i * 3 + 1] += rainVelocities[i];
@@ -134,17 +135,22 @@ function animate() {
     }
     rain.geometry.attributes.position.needsUpdate = true;
 
+    // Update dynamic light position
     dynamicLight.position.set(
         10 * Math.sin(elapsedTime * 0.5),
         10,
         10 * Math.cos(elapsedTime * 0.5)
     );
 
-    if (hotdog) {
-    const waveHeight = Math.sin(hotdog.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) * oceanMaterial.uniforms.waveHeight.value;
-    hotdog.position.y = waveHeight; // Set the y position to match the wave height
-    hotdog.position.x = Math.sin(elapsedTime * 0.5) * 5;
-    hotdog.position.z = Math.cos(elapsedTime * 0.5) * 5;
+    // Make submarine dip slightly into ocean waves
+    if (submarine) {
+        const waveHeight =
+            Math.sin(submarine.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) *
+            oceanMaterial.uniforms.waveHeight.value *
+            0.2; // Reduced dip factor
+        submarine.position.y = -1.5 + waveHeight; // Adjust base y-position slightly
+        submarine.position.x = Math.sin(elapsedTime * 0.5) * 5;
+        submarine.position.z = Math.cos(elapsedTime * 0.5) * 5;
     }
 
     renderer.render(scene, camera);
@@ -153,6 +159,7 @@ function animate() {
 
 animate();
 
+// Handle window resize
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
