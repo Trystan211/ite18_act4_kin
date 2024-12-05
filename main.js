@@ -84,7 +84,7 @@ loader.load(
         box.getSize(size);
         console.log('Hotdog dimensions:', size);
 
-        hotdog.scale.set(25, 25, 25);
+        hotdog.scale.set(1, 1, 1);
     },
     undefined,
     (error) => {
