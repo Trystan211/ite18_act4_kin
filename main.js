@@ -4,15 +4,15 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/
 
 // Scene Setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x000011); // Dark blue for night sky
+scene.background = new THREE.Color(0x000011); // Dark night sky
 
-// Renderer Setup
+// Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 document.body.appendChild(renderer.domElement);
 
-// Camera Setup
+// Camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.set(0, 5, 15);
 scene.add(camera);
@@ -20,58 +20,47 @@ scene.add(camera);
 // Orbit Controls
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// Dynamic Light
-const dynamicLight = new THREE.PointLight(0xffffff, 8, 50);
-dynamicLight.position.set(0, 10, 0);
-scene.add(dynamicLight);
-
 // Ocean Geometry
 const geometry = new THREE.PlaneGeometry(75, 75, 300, 300);
-geometry.rotateX(-Math.PI / 2);
+geometry.rotateX(-Math.PI / 2); // Lay flat
 
-// Ocean Shader Material
+// Ocean Material with Shader
 const oceanMaterial = new THREE.ShaderMaterial({
     uniforms: {
         time: { value: 0 },
         waveHeight: { value: 1.5 },
         waveFrequency: { value: 0.5 },
-        deepColor: { value: new THREE.Color(0x1e3f66) }, // Deep ocean blue
-        shallowColor: { value: new THREE.Color(0x6ccff6) }, // Lighter ocean blue
     },
     vertexShader: `
         uniform float time;
         uniform float waveHeight;
         uniform float waveFrequency;
-        varying float vWaveHeight;
-        varying vec2 vUv;
+        varying float vWave;
 
         void main() {
-            vUv = uv;
             vec3 pos = position;
             float wave = sin(pos.x * waveFrequency + time) * waveHeight;
             wave += cos(pos.z * waveFrequency + time * 1.5) * waveHeight * 0.5;
-            pos.y += wave;
-            vWaveHeight = pos.y; // Pass wave height to fragment shader
+            pos.y += wave; // Apply wave height to y-position
+            vWave = pos.y; // Pass wave height to fragment shader
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
     `,
     fragmentShader: `
-        uniform vec3 deepColor;
-        uniform vec3 shallowColor;
-        varying float vWaveHeight;
-        varying vec2 vUv;
+        varying float vWave;
 
         void main() {
-            vec3 color = mix(deepColor, shallowColor, vUv.y * 0.8 + 0.2);
+            vec3 color = mix(vec3(0.0, 0.1, 0.4), vec3(0.0, 0.4, 0.7), vWave * 0.5 + 0.5);
             gl_FragColor = vec4(color, 1.0);
         }
     `,
 });
 
+// Ocean Mesh
 const ocean = new THREE.Mesh(geometry, oceanMaterial);
 scene.add(ocean);
 
-// Load Submarine Model
+// Submarine Loader
 const loader = new GLTFLoader();
 let submarine = null;
 
@@ -79,8 +68,8 @@ loader.load(
     "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
     (gltf) => {
         submarine = gltf.scene;
-        submarine.position.set(0, -1.5, 0); // Set initial position near water surface
-        submarine.scale.set(3, 3, 3);
+        submarine.position.set(0, 0, 0);
+        submarine.scale.set(3, 3, 3); // Adjust size
         scene.add(submarine);
     },
     undefined,
@@ -88,32 +77,6 @@ loader.load(
         console.error("Error loading the submarine model:", error);
     }
 );
-
-// Rain Geometry
-const rainCount = 10000;
-const rainGeometry = new THREE.BufferGeometry();
-const rainPositions = [];
-const rainVelocities = [];
-
-for (let i = 0; i < rainCount; i++) {
-    const x = (Math.random() - 0.5) * 100;
-    const y = Math.random() * 50;
-    const z = (Math.random() - 0.5) * 100;
-    rainPositions.push(x, y, z);
-    rainVelocities.push(-0.2 - Math.random() * 0.5);
-}
-
-rainGeometry.setAttribute("position", new THREE.Float32BufferAttribute(rainPositions, 3));
-
-const rainMaterial = new THREE.PointsMaterial({
-    color: 0xffffff, // White rain
-    size: 0.2,
-    transparent: true,
-    opacity: 0.8,
-});
-
-const rain = new THREE.Points(rainGeometry, rainMaterial);
-scene.add(rain);
 
 // Animation Loop
 const clock = new THREE.Clock();
@@ -123,32 +86,13 @@ function animate() {
     // Update ocean waves
     oceanMaterial.uniforms.time.value = elapsedTime;
 
-    // Update rain
-    const positions = rain.geometry.attributes.position.array;
-    for (let i = 0; i < rainCount; i++) {
-        positions[i * 3 + 1] += rainVelocities[i];
-        if (positions[i * 3 + 1] < 0) {
-            positions[i * 3 + 1] = 50;
-        }
-    }
-    rain.geometry.attributes.position.needsUpdate = true;
-
-    // Update dynamic light position
-    dynamicLight.position.set(
-        10 * Math.sin(elapsedTime * 0.5),
-        10,
-        10 * Math.cos(elapsedTime * 0.5)
-    );
-
-    // Submarine wave interaction
+    // Submarine Sync with Waves
     if (submarine) {
         const waveHeight =
             Math.sin(submarine.position.x * oceanMaterial.uniforms.waveFrequency.value + elapsedTime) *
             oceanMaterial.uniforms.waveHeight.value;
 
-        submarine.position.y = waveHeight - 1.5; // Sync submarine Y position to wave height
-        submarine.position.x = Math.sin(elapsedTime * 0.5) * 5;
-        submarine.position.z = Math.cos(elapsedTime * 0.5) * 5;
+        submarine.position.y = waveHeight - 0.5; // Align with wave, dip slightly
     }
 
     renderer.render(scene, camera);
@@ -157,9 +101,10 @@ function animate() {
 
 animate();
 
-// Handle window resize
+// Responsive Resize
 window.addEventListener("resize", () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
