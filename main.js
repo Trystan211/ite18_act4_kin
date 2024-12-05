@@ -83,12 +83,33 @@ loader.load(
         submarine.position.set(0, -submarineYOffset, 0); // Correct offset
         submarine.scale.set(3, 3, 3); // Adjust size
         scene.add(submarine);
+
+        // Add white ambient light around submarine
+        const light = new THREE.PointLight(0xffffff, 1, 50);
+        light.position.set(0, 10, 0); // Above the submarine
+        scene.add(light);
     },
     undefined,
     (error) => {
         console.error("Error loading the submarine model:", error);
     }
 );
+
+// Rain Particles
+const rainGeometry = new THREE.BufferGeometry();
+const rainCount = 10000;
+const rainPositions = new Float32Array(rainCount * 3);
+
+for (let i = 0; i < rainCount; i++) {
+    rainPositions[i * 3] = (Math.random() - 0.5) * 75; // x
+    rainPositions[i * 3 + 1] = Math.random() * 50; // y
+    rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 75; // z
+}
+
+rainGeometry.setAttribute("position", new THREE.BufferAttribute(rainPositions, 3));
+const rainMaterial = new THREE.PointsMaterial({ color: 0xaaaaaa, size: 0.1, transparent: true });
+const rain = new THREE.Points(rainGeometry, rainMaterial);
+scene.add(rain);
 
 // Animation Loop
 const clock = new THREE.Clock();
@@ -110,6 +131,16 @@ function animate() {
 
         submarine.position.y = wave - submarineYOffset; // Align the submarine with the wave
     }
+
+    // Rain Animation
+    const rainPositions = rain.geometry.attributes.position.array;
+    for (let i = 0; i < rainCount; i++) {
+        rainPositions[i * 3 + 1] -= 0.5; // Move downward
+        if (rainPositions[i * 3 + 1] < 0) {
+            rainPositions[i * 3 + 1] = 50; // Reset to top
+        }
+    }
+    rain.geometry.attributes.position.needsUpdate = true;
 
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
