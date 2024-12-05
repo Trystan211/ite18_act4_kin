@@ -81,7 +81,7 @@ loader.load(
         submarineYOffset = size.y / 2 - center.y;
 
         submarine.position.set(0, -submarineYOffset, 0); // Correct offset
-        submarine.scale.set(2, 2, 2); // Adjust size
+        submarine.scale.set(1, 1, 1); // Adjust size
         scene.add(submarine);
 
         // Add white ambient light around submarine
