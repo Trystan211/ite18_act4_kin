@@ -65,7 +65,7 @@ const loader = new GLTFLoader();
 let submarine = null;
 
 loader.load(
-    "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
+    "https://trystan211.github.io/ite18_act4_kin/low_poly_hot_dog.glb",
     (gltf) => {
         submarine = gltf.scene;
         submarine.position.set(0, 0, 0);
