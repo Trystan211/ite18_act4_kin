@@ -63,12 +63,24 @@ scene.add(ocean);
 // Submarine Loader
 const loader = new GLTFLoader();
 let submarine = null;
+let submarineYOffset = 0; // To adjust the origin misalignment
 
 loader.load(
     "https://trystan211.github.io/ite18_act4_kin/hololive_en_submarine.glb",
     (gltf) => {
         submarine = gltf.scene;
-        submarine.position.set(0, 0, 0);
+
+        // Calculate bounding box to determine the model's vertical offset
+        const boundingBox = new THREE.Box3().setFromObject(submarine);
+        const size = new THREE.Vector3();
+        boundingBox.getSize(size); // Get the size of the model
+        const center = new THREE.Vector3();
+        boundingBox.getCenter(center); // Get the center of the model
+
+        // Adjust submarine's position so its base aligns with the water surface
+        submarineYOffset = size.y / 2 - center.y;
+
+        submarine.position.set(0, -submarineYOffset, 0); // Correct offset
         submarine.scale.set(3, 3, 3); // Adjust size
         scene.add(submarine);
     },
@@ -96,7 +108,7 @@ function animate() {
             Math.sin(submarine.position.x * waveFrequency + elapsedTime) * waveHeight +
             Math.cos(submarine.position.z * waveFrequency + elapsedTime * 1.5) * waveHeight * 0.5;
 
-        submarine.position.y = wave; // Align the submarine's y-position with the wave
+        submarine.position.y = wave - submarineYOffset; // Align the submarine with the wave
     }
 
     renderer.render(scene, camera);
