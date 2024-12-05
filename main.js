@@ -1,3 +1,7 @@
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/GLTFLoader.js";
+
 // Scene Setup
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x001133); // Darker blue for deeper ocean atmosphere
