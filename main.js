@@ -73,7 +73,7 @@ const loader = new GLTFLoader();
 let hotdog = null;
 
 loader.load(
-    'https://trystan211.github.io/ite18_joshua_act4/low_poly_hot_dog.glb', // Replace with actual hotdog model URL
+    'https://trystan211.github.io/ite18_act4_kin/typhoon-class_submarine.glb', // Replace with actual hotdog model URL
     (gltf) => {
         hotdog = gltf.scene;
         hotdog.position.set(1, 1, 1);
